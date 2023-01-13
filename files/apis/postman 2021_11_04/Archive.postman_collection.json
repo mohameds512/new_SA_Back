@@ -1,0 +1,572 @@
+{
+	"info": {
+		"_postman_id": "fd3aef40-b8cf-4178-959c-08a2fc77031a",
+		"name": "Archive",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Archive",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"order_by\":\"order\", \"parent_id\":2}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/api/archive",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"archive"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Archive Add",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"title\": \"Employees\",\r\n  \"type\": 0,\r\n  \"parent_id\": 2\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/api/archive",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"archive"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Archive Check Short Name",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"id\":2, \"short_name\":\"page\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/api/archive/check_short_name",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"archive",
+						"check_short_name"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Archive Move To",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"marked_ids\": [1,2,3,4]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/api/archive/move_to",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"archive",
+						"move_to"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Archive Order",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"id\": 2426,\r\n  \"neighbour_id\": 3364,\r\n  \"position\": \"before\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/api/archive/order",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"archive",
+						"order"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Archive Parents",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"root_id\": 68206\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/api/archive/parents/317930",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"archive",
+						"parents",
+						"317930"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Archive Paste To",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"marked_ids\": [1,2,3,4]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/api/archive/paste_to",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"archive",
+						"paste_to"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Archive Download All",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/api/archive/download_all/123",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"archive",
+						"download_all",
+						"123"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Archive Download Files",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/api/archive/download_files/123",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"archive",
+						"download_files",
+						"123"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Archive Download Public",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/api/archive/download/6",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"archive",
+						"download",
+						"6"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Archive Download Secure",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/api/archive/sd?code=wV1miVsqoiFl3FHIc04a6TgjLOWXuR4tlM%2FJ60IR4Js%3D",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"archive",
+						"sd"
+					],
+					"query": [
+						{
+							"key": "code",
+							"value": "wV1miVsqoiFl3FHIc04a6TgjLOWXuR4tlM%2FJ60IR4Js%3D"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Archive Edit",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"title\": \"Page\",\r\n  \"description\": \"Page Describtion\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/api/archive/792654",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"archive",
+						"792654"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Archive Export",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/api/archive/export/74401",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"archive",
+						"export",
+						"74401"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Archive Get",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/api/archive/6",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"archive",
+						"6"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Archive Import",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "7Qsp-ONBA/ICO.zip"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{server}}/api/archive/import",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"archive",
+						"import"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Archive Upload",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "fzkoGG9yp/student.pdf"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{server}}/api/archive/upload/3",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"archive",
+						"upload",
+						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Archive Update",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "fzkoGG9yp/student.pdf"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{server}}/api/archive/update/792666",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"archive",
+						"update",
+						"792666"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Archive DELETE",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/api/archive/1",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"archive",
+						"1"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
