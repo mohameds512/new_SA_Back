@@ -1,0 +1,458 @@
+{
+	"info": {
+		"_postman_id": "7537141b-8d4a-4a8e-ad83-46e23ddc41d3",
+		"name": "Progrms",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Faculties",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{}"
+				},
+				"url": {
+					"raw": "{{server}}/api/programs/faculties",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"programs",
+						"faculties"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Faculties Add",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"code\": \"PHM\",\r\n    \"name\": \"Faculty of Pharmacy\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/api/programs/faculties",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"programs",
+						"faculties"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Faculties Edit",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"code\": \"ENG\",\r\n    \"name\": \"Faculty of Engineering\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/api/programs/faculties/1",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"programs",
+						"faculties",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Faculties Get",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"code\": \"ENGUG2019\",\r\n    \"faculty_code\":\"ENG\",\r\n    \"name\": \"Undergraduate Bylaw 2019\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/api/programs/faculties/1",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"programs",
+						"faculties",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Faculties Delete",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"code\": \"ENGUG2019\",\r\n    \"faculty_code\":\"ENG\",\r\n    \"name\": \"Undergraduate Bylaw 2019\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/api/programs/faculties/3",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"programs",
+						"faculties",
+						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Bylaws",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{}"
+				},
+				"url": {
+					"raw": "{{server}}/api/programs/bylaws",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"programs",
+						"bylaws"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Bylaws Add",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"code\": \"PHMUG2010\",\r\n    \"faculty_code\":\"PHM\",\r\n    \"name\": \"Undergraduate Bylaw 2010\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/api/programs/bylaws",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"programs",
+						"bylaws"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Bylaws Edit",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"code\": \"MEDUG2011\",\r\n    \"faculty_code\":\"MED\",\r\n    \"name\": \"Undergraduate Bylaw 2011\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/api/programs/bylaws/9",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"programs",
+						"bylaws",
+						"9"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Bylaws Get",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"code\": \"ENGUG2019\",\r\n    \"faculty_code\":\"ENG\",\r\n    \"name\": \"Undergraduate Bylaw 2019\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/api/programs/bylaws/9",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"programs",
+						"bylaws",
+						"9"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Bylaws Delete",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"code\": \"ENGUG2019\",\r\n    \"faculty_code\":\"ENG\",\r\n    \"name\": \"Undergraduate Bylaw 2019\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/api/programs/bylaws/7",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"programs",
+						"bylaws",
+						"7"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Programs",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{}"
+				},
+				"url": {
+					"raw": "{{server}}/api/programs/faculties",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"programs",
+						"faculties"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Programs Add",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"code\": \"ENGUG2017CSE\",\r\n    \"bylaw_code\":\"ENGUG2017\",\r\n    \"name\": \"Computer and Systems Engineering\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/api/programs",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"programs"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Programs Edit",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"code\": \"ENGUG2019CSE\",\r\n    \"bylaw_code\":\"ENGUG2019\",\r\n    \"name\": \"Computer and Systems Engineering\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/api/programs/2",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"programs",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Programs Get",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"code\": \"ENGUG2019\",\r\n    \"faculty_code\":\"ENG\",\r\n    \"name\": \"Undergraduate Bylaw 2019\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/api/programs/2",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"programs",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Programs Delete",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"code\": \"ENGUG2019\",\r\n    \"faculty_code\":\"ENG\",\r\n    \"name\": \"Undergraduate Bylaw 2019\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/api/programs/3",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"programs",
+						"3"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
