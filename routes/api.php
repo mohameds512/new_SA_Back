@@ -24,6 +24,8 @@ Route::group(['prefix' => 'store', 'middleware' => ['auth:api', 'json.response']
     // Route::post('lookups/index', [LookupController::class, 'index']);
     
     Route::post('save_submission', [pgcController::class, 'save_submission']);
+    Route::post('save_includes', [pgcController::class, 'save_includes']);
+    Route::post('submitFloor', [pgcController::class, 'save_floor']);
     
 });
 Route::group(['prefix' => 'dashboard', 'middleware' => ['auth:api', 'json.response']], function () {

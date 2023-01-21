@@ -4,13 +4,11 @@ namespace App\Http\Controllers\Api\pgc;
 
 use App\Http\Controllers\Api\Controller;
 use App\Http\Requests\Users\User\UserRequest;
-use App\Models\Grades\GradeTerm;
-use App\Models\Programs\Course;
-use App\Models\Programs\Faculty;
 
 use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
 use Validator;
 
@@ -43,7 +41,10 @@ class pgcController extends Controller
             'includes_type' => $includes,
         ]);
     }
-
+    public function save_floor(Request $request)
+    {
+        return $request;
+    }
     public function show_sub( Request $request, Submission $submission)
     {
         $data = (object)[];
@@ -52,6 +53,7 @@ class pgcController extends Controller
         $sub->building_details = json_decode($sub->building_details);
         $sub->contract_border_details = json_decode($sub->contract_border_details);
         $sub->restrict_border = json_decode($sub->restrict_border);
+        $sub->coordinates = json_decode($sub->coordinates);
         $sub->includes_data =  $sub->includes()
             ->select('includes.qty','includes.id as inc_id','building_types.name as type', 'building_type_contents.name as content')
             ->join('building_types', 'building_types.id' , 'includes.build_id')
@@ -79,16 +81,59 @@ class pgcController extends Controller
         ]);
     }
 
-    public function save_submission( Request $request )
+    function save_img($file, $name, $folder)
+    {
+        $title = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $extension = $file->getClientOriginalExtension();
+        Storage::disk('local')->putFileAs($folder, $file, "$name.$extension");
+        return "$title.$extension";
+    }
+
+    public function save_includes (Request $request , Includes $inc = null)
+    {
+        if (!$inc) {
+            $inc = new Includes();
+        }
+
+        $data = $request->all();
+
+        if ($request->hasfile('project_plan_img')) {
+            
+            $img = $request->file('project_plan_img');
+            
+            $filename = Str::random(10);
+            $imgName = $filename.'.png';
+            $this->save_img($img ,"$imgName","includes");
+            
+        }
+
+
+
+        $inc->fill($request->all());
+        $inc->save();
+
+        $sub_incs = Includes::where('submission_id' , $inc->submission_id);
+        return response(['includes'=>$sub_incs], 201);
+    }
+
+    public function save_submission( Request $request , Submission $sub = null )
     {
         // return response(\json_encode($request->submission['restrict_border'])) ;
+        $build_num = Str::random(7);
 
-        $sub_data = $request->submission;
-        $sub= new Submission();
+        if (!$sub) {
+            $sub= new Submission();
+            $sub_data = $request->submission;
+            $sub_data['building_number'] = $build_num;
+        }
+        
         $sub_data['building_details'] = $request->building_details;
+        
         $sub_data['restrict_border'] = json_encode($request->submission['restrict_border']);
         $sub_data['building_details'] = json_encode($request->submission['building_details']);
         $sub_data['contract_border_details'] = json_encode($request->submission['contract_border_details']);
+        $sub_data['coordinates'] = json_encode($request->submission['coordinates']);
+
         $sub->fill($sub_data);
         $sub->save();
 
@@ -106,7 +151,7 @@ class pgcController extends Controller
 
         // $sub->building_types()->sync($data);
 
-        $includes = $request->includesForm;
+        // $includes = $request->includesForm;
 
         
 
@@ -119,34 +164,10 @@ class pgcController extends Controller
         //     $includes->image = $imgName;
         // }
 
-        $sub->building_types()->sync($includes);
+        // $sub->building_types()->sync($includes);
 
 
         return response($sub);
-        // DB::beginTransaction();
-
-        // try {
-        //     $sub= new Submission();
-
-        //     $sub_data = $request->submissions;
-        //     $sub->fill($sub_data);
-        //     $sub->save();
-
-        //     $owner_data = $request->owners;
-
-
-        //     $includes_data = $request->includesForm;
-
-        //     DB::commit();
-        // } catch (\Exception  $e) {
-        //     DB::rollback();
-        // }
-
-        // $subs = Submission::get();
-
-        // return response([
-        //     'submissions' => $subs
-        // ] , 200);
     }
 
 
