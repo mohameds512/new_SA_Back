@@ -18,21 +18,23 @@ use App\Http\Controllers\Api\pgc\pgcController;
 Route::group(['prefix' => '', 'middleware' => ['auth:api', 'json.response']], function () {
     // Route::post('lookups/index', [LookupController::class, 'index']);
     Route::post('dataLookups', [pgcController::class, 'lookups']);
-    
+
 });
 Route::group(['prefix' => 'store', 'middleware' => ['auth:api', 'json.response']], function () {
     // Route::post('lookups/index', [LookupController::class, 'index']);
-    
+
     Route::post('save_submission', [pgcController::class, 'save_submission']);
-    
+    Route::post('save_includes', [pgcController::class, 'save_includes']);
+    Route::post('submitFloor', [pgcController::class, 'save_floor']);
+
 });
 Route::group(['prefix' => 'dashboard', 'middleware' => ['auth:api', 'json.response']], function () {
     // Route::post('lookups/index', [LookupController::class, 'index']);
-    
+
     Route::post('getSubmissions', [pgcController::class, 'getSub']);
     Route::post('showSub/{id}', [pgcController::class, 'show_sub']);
 
-    
+
 });
 // Route::post('getSubmissions', [pgcController::class, 'getSub']);
 
@@ -122,9 +124,3 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth:api', 'json.respon
     Route::post('payment', [DashboardController::class, 'payment']);
     Route::post('activities', [DashboardController::class, 'activities']);
 });
-
-
-
-
-
-
