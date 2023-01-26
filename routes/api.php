@@ -23,9 +23,11 @@ Route::group(['prefix' => '', 'middleware' => ['auth:api', 'json.response']], fu
 Route::group(['prefix' => 'store', 'middleware' => ['auth:api', 'json.response']], function () {
     // Route::post('lookups/index', [LookupController::class, 'index']);
 
+    Route::put('add/submission', [pgcController::class, 'add']);
     Route::post('save_submission', [pgcController::class, 'save_submission']);
     Route::post('save_includes', [pgcController::class, 'save_includes']);
     Route::post('submitFloor', [pgcController::class, 'save_floor']);
+    Route::post('change/status/{submission}', [pgcController::class, 'changeStatus']);
 
 });
 Route::group(['prefix' => 'dashboard', 'middleware' => ['auth:api', 'json.response']], function () {
