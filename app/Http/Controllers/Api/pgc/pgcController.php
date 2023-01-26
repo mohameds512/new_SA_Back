@@ -65,8 +65,9 @@ class pgcController extends Controller
     }
     public function get_incs(Request $request )
     {
-        $incs = Includes::where('submission_id',$request->id)
-                ->select('includes.*','building_types.name as type', 'building_type_contents.name as content')
+        // $incs = Includes::where('submission_id',$request->id)
+        $incs = Includes::
+                select('includes.*','building_types.name as type', 'building_type_contents.name as content')
                 ->join('building_types', 'building_types.id' , 'includes.build_id')
                 ->join('building_type_contents', 'building_type_contents.id' , 'includes.build_desc_id');
         $includes = $incs->get();
