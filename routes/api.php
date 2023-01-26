@@ -30,9 +30,8 @@ Route::group(['prefix' => 'store', 'middleware' => ['auth:api', 'json.response']
     
 });
 Route::group(['prefix' => 'dashboard', 'middleware' => ['auth:api', 'json.response']], function () {
-    // Route::post('lookups/index', [LookupController::class, 'index']);
-    Route::post('getInc', [pgcController::class, 'get_incs']);
-    // Route::post('getInc/{id}', [pgcController::class, 'get_incs']);
+    
+    Route::post('getInc/{id}', [pgcController::class, 'get_incs']);
     Route::post('getSubmissions', [pgcController::class, 'getSub']);
     Route::post('showSub/{id}', [pgcController::class, 'show_sub']);
     

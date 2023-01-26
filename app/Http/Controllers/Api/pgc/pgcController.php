@@ -65,9 +65,8 @@ class pgcController extends Controller
     }
     public function get_incs(Request $request )
     {
-        // $incs = Includes::where('submission_id',$request->id)
-        $incs = Includes::
-                select('includes.*','building_types.name as type', 'building_type_contents.name as content')
+        $incs = Includes::where('submission_id',$request->id)
+                ->select('includes.*','building_types.name as type', 'building_type_contents.name as content')
                 ->join('building_types', 'building_types.id' , 'includes.build_id')
                 ->join('building_type_contents', 'building_type_contents.id' , 'includes.build_desc_id');
         $includes = $incs->get();
@@ -115,14 +114,18 @@ class pgcController extends Controller
     }
 
     
-    public function save_includes (Request $request , Includes $inc = null)
+    public function save_includes (Request $request , Includes $includes = null)
     {
-        return \response($request);
-        if (!$inc) {
-            $inc = new Includes();
+        
+        if (!$includes) {
+            $includes = new Includes();
         }
 
         $data = $request->all();
+        $includes->fill($data);
+        $includes->save();
+        
+        return response(['includes'=>$includes], 201);
 
         // if ($request->hasfile('project_plan_img')) {
             
@@ -134,11 +137,8 @@ class pgcController extends Controller
             
         // }
 
-        $inc->fill($request->all());
-        $inc->save();
+        
 
-        $sub_incs = Includes::where('submission_id' , $inc->submission_id);
-        return response(['includes'=>$sub_incs], 201);
     }
 
     public function approve_sub(Request $request, Submission $sub = null)
