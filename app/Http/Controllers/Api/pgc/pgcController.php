@@ -40,13 +40,47 @@ class pgcController extends Controller
             'includes_type' => $includes,
         ]);
     }
+<<<<<<< HEAD
 
+=======
+    public function edit_desc(Request $request)
+    {
+        // return $request;
+        $desc = BuildDesc::where('id',$request->desc_id)->first();
+        $desc->price = $request->desc_price;
+        $desc->unit = $request->desc_unit;
+        $desc->save();
+        return \response(['done',200]);
+    }
+    public function get_build_desc( )
+    {
+        $build_desc = BuildDesc::select('building_type_contents.id as desc_id','building_type_contents.name as desc_name',
+                            'building_type_contents.unit as desc_unit','building_type_contents.price as desc_price',
+                            'building_types.name as type_name' , 'building_types.id as type_id')
+                        ->join('building_types','building_types.id','building_type_contents.building_type_id')
+                        ->get();
+        return \response(['build_desc'=> $build_desc]);
+    }
+>>>>>>> 9555387ca958d1aa0b3da7a90a65ac87e6ae7263
     public function save_floor(Request $request)
     {
         return $request;
     }
+<<<<<<< HEAD
 
     public function show_sub(Request $request, Submission $submission)
+=======
+    public function get_incs(Request $request )
+    {
+        $incs = Includes::where('submission_id',$request->id)
+                ->select('includes.*','building_types.name as type', 'building_type_contents.name as content')
+                ->join('building_types', 'building_types.id' , 'includes.build_id')
+                ->join('building_type_contents', 'building_type_contents.id' , 'includes.build_desc_id');
+        $includes = $incs->get();
+        return \response(['includes'=> $includes]) ;
+    }
+    public function show_sub( Request $request, Submission $submission)
+>>>>>>> 9555387ca958d1aa0b3da7a90a65ac87e6ae7263
     {
         $data = (object)[];
 
@@ -71,7 +105,10 @@ class pgcController extends Controller
 
         $data->submission[] = $sub;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 9555387ca958d1aa0b3da7a90a65ac87e6ae7263
         $owners = Owner::where('submission_id', $request->id);
         $data->owners = $owners->get()->toArray();
 
@@ -97,14 +134,25 @@ class pgcController extends Controller
         return "$title.$extension";
     }
 
+<<<<<<< HEAD
     public function save_includes(Request $request, Includes $inc = null)
+=======
+    
+    public function save_includes (Request $request , Includes $includes = null)
+>>>>>>> 9555387ca958d1aa0b3da7a90a65ac87e6ae7263
     {
-        if (!$inc) {
-            $inc = new Includes();
+        
+        if (!$includes) {
+            $includes = new Includes();
         }
 
         $data = $request->all();
+        $includes->fill($data);
+        $includes->save();
+        
+        return response(['includes'=>$includes], 201);
 
+<<<<<<< HEAD
         if ($request->hasfile('project_plan_img')) {
 
             $img = $request->file('project_plan_img');
@@ -114,13 +162,58 @@ class pgcController extends Controller
             $this->save_img($img, "$imgName", "includes");
 
         }
+=======
+        // if ($request->hasfile('project_plan_img')) {
+            
+        //     $img = $request->file('project_plan_img');
+            
+        //     $filename = Str::random(10);
+        //     $imgName = $filename.'.png';
+        //     $this->save_img($img ,"$imgName","includes");
+            
+        // }
 
+        
+>>>>>>> 9555387ca958d1aa0b3da7a90a65ac87e6ae7263
 
+    }
+
+<<<<<<< HEAD
         $inc->fill($request->all());
         $inc->save();
 
         $sub_incs = Includes::where('submission_id', $inc->submission_id);
         return response(['includes' => $sub_incs], 201);
+=======
+    public function approve_sub(Request $request, Submission $sub = null)
+    {
+        $id = $request->id;
+        $submission = Submission::find($id);
+        $submission->status = 2;
+        $submission->save();
+        return $submission;
+    }
+    public function add_notes(Request $request , Submission $sub = null)
+    {
+        $id = $request->id;
+        $submission = Submission::find($id);
+        
+        $submission->notes = $request->note;
+        $submission->status = 1;
+        $submission->save();
+        return $submission;
+    }
+    public function forced_area(Request $request , Submission $sub = null)
+    {
+        $id = $request->sub_id;
+        $submission = Submission::find($id);
+        
+        $submission->removed_from_unbuilding = $request->removed_from_unbuilding;
+        $submission->removed_from_building = $request->removed_from_building;
+        
+        $submission->save();
+        return $submission;
+>>>>>>> 9555387ca958d1aa0b3da7a90a65ac87e6ae7263
     }
 
     public function add(Request $request)

@@ -12,13 +12,14 @@ use App\Http\Controllers\Api\System\LookupController;
 use App\Http\Controllers\Api\pgc\pgcController;
 
 
-
-
-
 Route::group(['prefix' => '', 'middleware' => ['auth:api', 'json.response']], function () {
     // Route::post('lookups/index', [LookupController::class, 'index']);
     Route::post('dataLookups', [pgcController::class, 'lookups']);
+<<<<<<< HEAD
 
+=======
+    Route::post('build_desc', [pgcController::class, 'get_build_desc']);
+>>>>>>> 9555387ca958d1aa0b3da7a90a65ac87e6ae7263
 });
 Route::group(['prefix' => 'store', 'middleware' => ['auth:api', 'json.response']], function () {
     // Route::post('lookups/index', [LookupController::class, 'index']);
@@ -26,7 +27,11 @@ Route::group(['prefix' => 'store', 'middleware' => ['auth:api', 'json.response']
     Route::put('add/submission', [pgcController::class, 'add']);
     Route::post('save_submission', [pgcController::class, 'save_submission']);
     Route::post('save_includes', [pgcController::class, 'save_includes']);
+    Route::post('add_notes', [pgcController::class, 'add_notes']);
+    Route::post('approve', [pgcController::class, 'approve_sub']);
+    Route::post('forced_area', [pgcController::class, 'forced_area']);
     Route::post('submitFloor', [pgcController::class, 'save_floor']);
+<<<<<<< HEAD
     Route::post('change/status/{submission}', [pgcController::class, 'changeStatus']);
 
 });
@@ -37,7 +42,22 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth:api', 'json.respon
     Route::post('showSub/{id}', [pgcController::class, 'show_sub']);
 
 
+=======
+    Route::post('edit_desc', [pgcController::class, 'edit_desc']);
+    
 });
+Route::group(['prefix' => 'dashboard', 'middleware' => ['auth:api', 'json.response']], function () {
+    
+    Route::post('getInc/{id}', [pgcController::class, 'get_incs']);
+    Route::post('getSubmissions', [pgcController::class, 'getSub']);
+    Route::post('showSub/{id}', [pgcController::class, 'show_sub']);
+    
+>>>>>>> 9555387ca958d1aa0b3da7a90a65ac87e6ae7263
+});
+
+
+// Route::post('getInc/{id}', [pgcController::class, 'get_incs']);
+
 // Route::post('getSubmissions', [pgcController::class, 'getSub']);
 
 // Route::post('dataLookups', [pgcController::class, 'lookups']);
