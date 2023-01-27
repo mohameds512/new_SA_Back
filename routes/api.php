@@ -27,6 +27,7 @@ Route::group(['prefix' => 'store', 'middleware' => ['auth:api', 'json.response']
     Route::post('forced_area', [pgcController::class, 'forced_area']);
     Route::post('submitFloor', [pgcController::class, 'save_floor']);
     Route::post('edit_desc', [pgcController::class, 'edit_desc']);
+    Route::post('map', [pgcController::class, 'storeMap']);
     
 });
 Route::group(['prefix' => 'dashboard', 'middleware' => ['auth:api', 'json.response']], function () {

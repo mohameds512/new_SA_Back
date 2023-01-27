@@ -8,7 +8,9 @@ use App\Http\Requests\Users\User\UserRequest;
 use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+
 use Spatie\Permission\Models\Role;
 use Validator;
 
@@ -105,14 +107,26 @@ class pgcController extends Controller
         ]);
     }
 
-    function save_img($file, $name, $folder)
+    function saveRequestImg($file, $name, $folder)
     {
         $title = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
         $extension = $file->getClientOriginalExtension();
         Storage::disk('local')->putFileAs($folder, $file, "$name.$extension");
         return "$title.$extension";
     }
+    public function storeMap( Request $request)
+    {
+        $id = $request->submission_id;
+        $submission = Submission::find($id);
+        $map = $request->file('submission_map');
+        $fileName = Str::random(7);
+        $mapName = $fileName.'png';
+        $this->saveRequestImg($map , "$mapName","submissions");
+        $submission->map = $mapName;
+        $submission->save();
 
+        return \response($submission);
+    }
     
     public function save_includes (Request $request , Includes $includes = null)
     {
@@ -121,8 +135,15 @@ class pgcController extends Controller
             $includes = new Includes();
         }
 
-        $data = $request->all();
-        $includes->fill($data);
+        $img = $request->file('image');
+        $fileName = Str::random(7);
+        $imgName = $fileName.'png';
+        $this->saveRequestImg($img , "$imgName","includes");
+        
+        $includes->image = $imgName;
+        $includes->build_id = $request->build_id;
+        $includes->build_desc_id = $request->build_desc_id;
+        $includes->qty = $request->qty;
         $includes->save();
         
         return response(['includes'=>$includes], 201);
@@ -133,7 +154,7 @@ class pgcController extends Controller
             
         //     $filename = Str::random(10);
         //     $imgName = $filename.'.png';
-        //     $this->save_img($img ,"$imgName","includes");
+        //     $this->saveRequestImg($img ,"$imgName","includes");
             
         // }
 
