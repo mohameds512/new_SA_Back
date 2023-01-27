@@ -8,17 +8,12 @@ use App\Http\Requests\Users\User\UserRequest;
 use App\Models\SubmissionLog;
 use Auth;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+
 use Spatie\Permission\Models\Role;
 use Validator;
 
-use App\Models\System\Device;
-use App\Models\System\Log;
-use App\Models\System\Paginator;
-use App\Models\System\System;
-use App\Models\System\SystemMail;
-use App\Models\Users\User;
 use App\Models\Users\UserAccess;
 
 
@@ -40,47 +35,54 @@ class pgcController extends Controller
             'includes_type' => $includes,
         ]);
     }
-<<<<<<< HEAD
 
-=======
     public function edit_desc(Request $request)
     {
         // return $request;
-        $desc = BuildDesc::where('id',$request->desc_id)->first();
+        $desc = BuildDesc::where('id', $request->desc_id)->first();
         $desc->price = $request->desc_price;
         $desc->unit = $request->desc_unit;
         $desc->save();
-        return \response(['done',200]);
+        return \response(['done', 200]);
     }
-    public function get_build_desc( )
+
+    public function get_build_desc()
     {
-        $build_desc = BuildDesc::select('building_type_contents.id as desc_id','building_type_contents.name as desc_name',
-                            'building_type_contents.unit as desc_unit','building_type_contents.price as desc_price',
-                            'building_types.name as type_name' , 'building_types.id as type_id')
-                        ->join('building_types','building_types.id','building_type_contents.building_type_id')
-                        ->get();
-        return \response(['build_desc'=> $build_desc]);
+        $build_desc = BuildDesc::select('building_type_contents.id as desc_id', 'building_type_contents.name as desc_name',
+            'building_type_contents.unit as desc_unit', 'building_type_contents.price as desc_price',
+            'building_types.name as type_name', 'building_types.id as type_id')
+            ->join('building_types', 'building_types.id', 'building_type_contents.building_type_id')
+            ->get();
+        return \response(['build_desc' => $build_desc]);
     }
->>>>>>> 9555387ca958d1aa0b3da7a90a65ac87e6ae7263
+
+    public function add(Request $request)
+    {
+
+        $sub = new Submission();
+        $sub->fill($request->all());
+        $sub->save();
+        SubmissionLog::log($sub, SubmissionLog::IN_REVIEW);
+        return response(['submission' => $sub], 201);
+
+    }
+
     public function save_floor(Request $request)
     {
         return $request;
     }
-<<<<<<< HEAD
+
+    public function get_incs(Request $request)
+    {
+        $incs = Includes::where('submission_id', $request->id)
+            ->select('includes.*', 'building_types.name as type', 'building_type_contents.name as content')
+            ->join('building_types', 'building_types.id', 'includes.build_id')
+            ->join('building_type_contents', 'building_type_contents.id', 'includes.build_desc_id');
+        $includes = $incs->get();
+        return \response(['includes' => $includes]);
+    }
 
     public function show_sub(Request $request, Submission $submission)
-=======
-    public function get_incs(Request $request )
-    {
-        $incs = Includes::where('submission_id',$request->id)
-                ->select('includes.*','building_types.name as type', 'building_type_contents.name as content')
-                ->join('building_types', 'building_types.id' , 'includes.build_id')
-                ->join('building_type_contents', 'building_type_contents.id' , 'includes.build_desc_id');
-        $includes = $incs->get();
-        return \response(['includes'=> $includes]) ;
-    }
-    public function show_sub( Request $request, Submission $submission)
->>>>>>> 9555387ca958d1aa0b3da7a90a65ac87e6ae7263
     {
         $data = (object)[];
 
@@ -95,6 +97,8 @@ class pgcController extends Controller
             ->join('building_type_contents', 'building_type_contents.id', 'includes.build_desc_id')
             ->get();
 
+        $sub->signature_owner = route('image', ['submission_id' => 1 , 'img' => "signature-1"]);
+
         $logs_data = [];
 
         foreach ($sub->logs as $log) {
@@ -105,10 +109,6 @@ class pgcController extends Controller
 
         $data->submission[] = $sub;
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 9555387ca958d1aa0b3da7a90a65ac87e6ae7263
         $owners = Owner::where('submission_id', $request->id);
         $data->owners = $owners->get()->toArray();
 
@@ -116,6 +116,37 @@ class pgcController extends Controller
             'data' => $data
         ]);
 
+    }
+
+    public function saveSignature(Request $request, Submission $submission)
+    {
+
+        self::addSignatureFile($request->signature, "submissions/$submission->id/signature-$request->type.png");
+        return success(true);
+    }
+
+    public function submissionImages(Request $request, $submission_id ,  $img)
+    {
+
+
+
+        $paths = findFiles("submissions/$submission_id", "$img");
+
+        if (isset($paths[0]) && $paths[0]) {
+            return responseFile($paths[0], "$img");
+            // return response()->download($paths[0]);
+        }
+        return response(['message' => 'not found'], 404);
+
+    }
+
+    public static function addSignatureFile($signature, $path)
+    {
+
+        $img = substr($signature, strpos($signature, ",") + 1);
+        $data = base64_decode($img);
+        Storage::disk('local')->put($path, $data);
+        return $path;
     }
 
     public function getSub()
@@ -126,7 +157,18 @@ class pgcController extends Controller
         ]);
     }
 
-    function save_img($file, $name, $folder)
+
+//    function saveRequestFile($file, $name, $folder)
+//    {
+//
+//        $title = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+//        $extension = $file->getClientOriginalExtension();
+//        Storage::disk('local')->putFileAs($folder, $file, "$name.$extension");
+//
+//        return "$title.$extension";
+//    }
+
+    function saveRequestImg($file, $name, $folder)
     {
         $title = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
         $extension = $file->getClientOriginalExtension();
@@ -134,57 +176,53 @@ class pgcController extends Controller
         return "$title.$extension";
     }
 
-<<<<<<< HEAD
-    public function save_includes(Request $request, Includes $inc = null)
-=======
-    
-    public function save_includes (Request $request , Includes $includes = null)
->>>>>>> 9555387ca958d1aa0b3da7a90a65ac87e6ae7263
+    public function storeMap(Request $request)
     {
-        
+        $id = $request->submission_id;
+        $submission = Submission::find($id);
+        $map = $request->file('submission_map');
+        $fileName = Str::random(7);
+        $mapName = $fileName . 'png';
+        $this->saveRequestImg($map, "$mapName", "submissions");
+        $submission->map = $mapName;
+        $submission->save();
+
+        return \response($submission);
+    }
+
+    public function save_includes(Request $request, Includes $includes = null)
+    {
+
         if (!$includes) {
             $includes = new Includes();
         }
 
-        $data = $request->all();
-        $includes->fill($data);
+        $img = $request->file('image');
+        $fileName = Str::random(7);
+        $imgName = $fileName . 'png';
+        $this->saveRequestImg($img, "$imgName", "includes");
+
+        $includes->image = $imgName;
+        $includes->build_id = $request->build_id;
+        $includes->build_desc_id = $request->build_desc_id;
+        $includes->qty = $request->qty;
         $includes->save();
-        
-        return response(['includes'=>$includes], 201);
 
-<<<<<<< HEAD
-        if ($request->hasfile('project_plan_img')) {
+        return response(['includes' => $includes], 201);
 
-            $img = $request->file('project_plan_img');
-
-            $filename = Str::random(10);
-            $imgName = $filename . '.png';
-            $this->save_img($img, "$imgName", "includes");
-
-        }
-=======
         // if ($request->hasfile('project_plan_img')) {
-            
+
         //     $img = $request->file('project_plan_img');
-            
+
         //     $filename = Str::random(10);
         //     $imgName = $filename.'.png';
-        //     $this->save_img($img ,"$imgName","includes");
-            
+        //     $this->saveRequestImg($img ,"$imgName","includes");
+
         // }
 
-        
->>>>>>> 9555387ca958d1aa0b3da7a90a65ac87e6ae7263
 
     }
 
-<<<<<<< HEAD
-        $inc->fill($request->all());
-        $inc->save();
-
-        $sub_incs = Includes::where('submission_id', $inc->submission_id);
-        return response(['includes' => $sub_incs], 201);
-=======
     public function approve_sub(Request $request, Submission $sub = null)
     {
         $id = $request->id;
@@ -193,38 +231,28 @@ class pgcController extends Controller
         $submission->save();
         return $submission;
     }
-    public function add_notes(Request $request , Submission $sub = null)
+
+    public function add_notes(Request $request, Submission $sub = null)
     {
         $id = $request->id;
         $submission = Submission::find($id);
-        
+
         $submission->notes = $request->note;
         $submission->status = 1;
         $submission->save();
         return $submission;
     }
-    public function forced_area(Request $request , Submission $sub = null)
+
+    public function forced_area(Request $request, Submission $sub = null)
     {
         $id = $request->sub_id;
         $submission = Submission::find($id);
-        
+
         $submission->removed_from_unbuilding = $request->removed_from_unbuilding;
         $submission->removed_from_building = $request->removed_from_building;
-        
+
         $submission->save();
         return $submission;
->>>>>>> 9555387ca958d1aa0b3da7a90a65ac87e6ae7263
-    }
-
-    public function add(Request $request)
-    {
-
-        $sub = new Submission();
-        $sub->fill($request->all());
-        $sub->save();
-        SubmissionLog::log($sub, SubmissionLog::IN_REVIEW);
-        return response(['submission' => $sub], 201);
-
     }
 
     public function save_submission(Request $request, Submission $sub = null)
@@ -255,7 +283,27 @@ class pgcController extends Controller
             $newOwner->save();
         }
 
-        SubmissionLog::log($sub, SubmissionLog::IN_REVIEW);
+        // $data= [];
+        // foreach ($request->includesForm as $inc) {
+        //     $data[$inc['type']] = ['build_desc_id'=> $inc['desc'], 'qty'=> $inc['area']];
+        // }
+
+        // $sub->building_types()->sync($data);
+
+        // $includes = $request->includesForm;
+
+
+        // if ($includes->image) {
+
+        //     $img = $includes->image;
+        //     $imgName = time().'_'.$img->getClientOriginalExtension();
+        //     $img->move(\public_path('includes'),$img);
+
+        //     $includes->image = $imgName;
+        // }
+
+        // $sub->building_types()->sync($includes);
+
 
         return response($sub);
     }
