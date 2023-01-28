@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Owner extends Model
 {
-    protected $guarded = [];
+    protected $guarded = ['id'];
+//    protected $hidden = ['id'];
     protected $table = 'owners';
+
 }

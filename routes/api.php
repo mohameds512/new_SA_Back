@@ -26,7 +26,8 @@ Route::group(['prefix' => 'store', 'middleware' => ['auth:api', 'json.response']
     // Route::post('lookups/index', [LookupController::class, 'index']);
 
     Route::put('add/submission', [pgcController::class, 'add']);
-    Route::post('save_submission', [pgcController::class, 'save_submission']);
+    Route::put('save_submission/{sub}', [pgcController::class, 'save_submission']);
+    Route::get('show/{submission}', [pgcController::class, 'show']);
     Route::post('save_includes', [pgcController::class, 'save_includes']);
     Route::post('add_notes', [pgcController::class, 'add_notes']);
     Route::post('approve', [pgcController::class, 'approve_sub']);

@@ -59,9 +59,8 @@ class pgcController extends Controller
     public function add(Request $request)
     {
 
-        $sub = new Submission();
-        $sub->fill($request->all());
-        $sub->save();
+//
+        $sub = Submission::find($request->submission_id);
         SubmissionLog::log($sub, SubmissionLog::IN_REVIEW);
         return response(['submission' => $sub], 201);
 
@@ -83,25 +82,30 @@ class pgcController extends Controller
     }
 
 
+    public function show(Request $request, Submission $submission)
+    {
+        return success($submission);
+
+    }
 
     public function show_sub(Request $request, Submission $submission)
     {
         $data = (object)[];
 
         $sub = Submission::where('id', $request->id)->with('includes')->first();
-        $sub->building_details = json_decode($sub->building_details);
-        $sub->contract_border_details = json_decode($sub->contract_border_details);
-        $sub->restrict_border = json_decode($sub->restrict_border);
-        $sub->coordinates = json_decode($sub->coordinates);
+        $sub->building_details = $sub->building_details;
+        $sub->contract_border_details = $sub->contract_border_details;
+        $sub->restrict_border = $sub->restrict_border;
+        $sub->coordinates = $sub->coordinates;
         $sub->includes_data = $sub->includes()
             ->select('includes.qty', 'includes.id as inc_id', 'building_types.name as type', 'building_type_contents.name as content')
             ->join('building_types', 'building_types.id', 'includes.build_id')
             ->join('building_type_contents', 'building_type_contents.id', 'includes.build_desc_id')
             ->get();
 
-        $sub->signature_eng = route('image', ['submission_id' =>  $request->id , 'img' => "signature-1" , 'no_cache' => Str::random(4)]);
-        $sub->signature_owner = route('image', ['submission_id' =>  $request->id , 'img' => "signature-2" , 'no_cache' => Str::random(4)]);
-        $sub->signature_poss = route('image', ['submission_id' =>  $request->id , 'img' => "signature-3" , 'no_cache' => Str::random(4)]);
+        $sub->signature_eng = route('image', ['submission_id' => $request->id, 'img' => "signature-1", 'no_cache' => Str::random(4)]);
+        $sub->signature_owner = route('image', ['submission_id' => $request->id, 'img' => "signature-2", 'no_cache' => Str::random(4)]);
+        $sub->signature_poss = route('image', ['submission_id' => $request->id, 'img' => "signature-3", 'no_cache' => Str::random(4)]);
 
         $logs_data = [];
 
@@ -129,9 +133,8 @@ class pgcController extends Controller
         return success(true);
     }
 
-    public function submissionImages(Request $request, $submission_id ,  $img , $no_cache)
+    public function submissionImages(Request $request, $submission_id, $img, $no_cache)
     {
-
 
 
         $paths = findFiles("submissions/$submission_id", "$img");
@@ -161,16 +164,6 @@ class pgcController extends Controller
         ]);
     }
 
-
-//    function saveRequestFile($file, $name, $folder)
-//    {
-//
-//        $title = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-//        $extension = $file->getClientOriginalExtension();
-//        Storage::disk('local')->putFileAs($folder, $file, "$name.$extension");
-//
-//        return "$title.$extension";
-//    }
 
     function saveRequestImg($file, $name, $folder)
     {
@@ -210,21 +203,10 @@ class pgcController extends Controller
         $includes->build_id = $request->build_id;
         $includes->build_desc_id = $request->build_desc_id;
         $includes->qty = $request->qty;
+        $includes->submission_id = $request->submission_id;
         $includes->save();
 
         return response(['includes' => $includes], 201);
-
-        // if ($request->hasfile('project_plan_img')) {
-
-        //     $img = $request->file('project_plan_img');
-
-        //     $filename = Str::random(10);
-        //     $imgName = $filename.'.png';
-        //     $this->saveRequestImg($img ,"$imgName","includes");
-
-        // }
-
-
     }
 
     public function approve_sub(Request $request, Submission $sub = null)
@@ -259,55 +241,22 @@ class pgcController extends Controller
         return $submission;
     }
 
-    public function save_submission(Request $request, Submission $sub = null)
+    public function save_submission(Request $request, Submission $sub)
     {
-        // return response(\json_encode($request->submission['restrict_border'])) ;
-        $build_num = Str::random(7);
-
-        if (!$sub) {
-            $sub = new Submission();
-            $sub_data = $request->submission;
-            $sub_data['building_number'] = $build_num;
-        }
-
-        $sub_data['building_details'] = $request->building_details;
-
-        $sub_data['restrict_border'] = json_encode($request->submission['restrict_border']);
-        $sub_data['building_details'] = json_encode($request->submission['building_details']);
-        $sub_data['contract_border_details'] = json_encode($request->submission['contract_border_details']);
-        $sub_data['coordinates'] = json_encode($request->submission['coordinates']);
-
+//        $build_num = Str::random(7);
+        $sub_data = $request->submission;
         $sub->fill($sub_data);
         $sub->save();
 
         foreach ($request->owners as $owner) {
-            $newOwner = new Owner();
+            $newOwner = Owner::whereSubmissionIdAndNationalId($sub->id, $owner['national_id'])->first();
+            if (!$newOwner) {
+                $newOwner = new Owner();
+            }
             $newOwner->fill($owner);
             $newOwner->submission_id = $sub->id;
             $newOwner->save();
         }
-
-        // $data= [];
-        // foreach ($request->includesForm as $inc) {
-        //     $data[$inc['type']] = ['build_desc_id'=> $inc['desc'], 'qty'=> $inc['area']];
-        // }
-
-        // $sub->building_types()->sync($data);
-
-        // $includes = $request->includesForm;
-
-
-        // if ($includes->image) {
-
-        //     $img = $includes->image;
-        //     $imgName = time().'_'.$img->getClientOriginalExtension();
-        //     $img->move(\public_path('includes'),$img);
-
-        //     $includes->image = $imgName;
-        // }
-
-        // $sub->building_types()->sync($includes);
-
 
         return response($sub);
     }

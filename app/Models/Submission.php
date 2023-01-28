@@ -8,6 +8,8 @@ class Submission extends Model
 {
     protected $guarded = [];
     protected $table = 'submissions';
+    protected $with = ['owners'];
+    protected $casts = ['building_details' => 'json', 'contract_border_details' => 'json',  'restrict_border' => 'json' , 'coordinates' => 'json'];
 
     const IN_REVIEW = 0;
     const FEEDBACK = 1;
@@ -30,9 +32,8 @@ class Submission extends Model
     public function logs(){
         return $this->hasMany(SubmissionLog::class, 'submission_id');
     }
-    // public function owners ()
-    // {
-    //     return $this->hasMany(Includes::class, 'submission_id');
-
-    // }
+     public function owners ()
+     {
+         return $this->hasMany(Owner::class, 'submission_id');
+     }
 }
