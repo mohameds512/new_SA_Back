@@ -83,7 +83,7 @@ class UsersController extends Controller
 
     public function put(Request $request, User $user = null)
     {
-        if (!can('edit_users')) return error(System::HTTP_UNAUTHORIZED);
+//        if (!can('edit_users')) return error(System::HTTP_UNAUTHORIZED);
 
         $status = false;
 
@@ -103,9 +103,9 @@ class UsersController extends Controller
     public function details(User $user = null)
     {
         $user = ($user) ? $user : auth()->user();
-
-        if ($user->id != auth()->id() && !can('show_users'))
-            return error(System::HTTP_UNAUTHORIZED);
+//
+//        if ($user->id != auth()->id() && !can('show_users'))
+//            return error(System::HTTP_UNAUTHORIZED);
 
         $token = $user->token();
 
@@ -238,7 +238,7 @@ class UsersController extends Controller
     public function remove(Request $request, User $user)
     {
 
-        if (!can('edit_users')) return error(System::HTTP_UNAUTHORIZED);
+//        if (!can('edit_users')) return error(System::HTTP_UNAUTHORIZED);
 
         if (!$user->remove($request->reason)) {
 
@@ -254,7 +254,7 @@ class UsersController extends Controller
     public function restore(Request $request, User $user)
     {
 
-        if (!can('edit_users')) return error(System::HTTP_UNAUTHORIZED);
+//        if (!can('edit_users')) return error(System::HTTP_UNAUTHORIZED);
 
         if (!$user->restore()) {
 
@@ -279,25 +279,7 @@ class UsersController extends Controller
 
     /** for testing only */
     //create user for testing registration process
-    public function addUserAccessOperationTest(Request $request, User $user)
-    {
-        //dd($user->userAccess);
-        foreach ($user->userAccess as $userAccess) {
-            if (
-            $userAccess->syncPermissions([
-                'admin_offerings',
-                'access_offerings',
-                'show_offerings',
-                'edit_offering',
 
-                'access_registration',
-
-                'access_study',
-            ])
-            ) echo ' = done created ';
-        }
-        echo ' end ';
-    }
 
     public function createTestEmployee(Request $request)
     {

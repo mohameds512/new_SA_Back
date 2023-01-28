@@ -14,17 +14,17 @@ use App\Http\Controllers\Api\pgc\pgcController;
 
 
 Route::get('submission/image/{submission_id}/{img}/{no_cache}', [pgcController::class, 'submissionImages'])->name('image');
+Route::get('submission/includes/image/{submission_id}/{img}/{no_cache}', [pgcController::class, 'submissionIncludesImages'])->name('includes_image');
 
 
 Route::group(['prefix' => '', 'middleware' => ['auth:api', 'json.response']], function () {
-    // Route::post('lookups/index', [LookupController::class, 'index']);
+
     Route::post('dataLookups', [pgcController::class, 'lookups']);
 
     Route::post('build_desc', [pgcController::class, 'get_build_desc']);
 });
-Route::group(['prefix' => 'store', 'middleware' => ['auth:api', 'json.response']], function () {
-    // Route::post('lookups/index', [LookupController::class, 'index']);
 
+Route::group(['prefix' => 'store', 'middleware' => ['auth:api', 'json.response']], function () {
     Route::put('add/submission', [pgcController::class, 'add']);
     Route::put('save_submission/{sub}', [pgcController::class, 'save_submission']);
     Route::get('show/{submission}', [pgcController::class, 'show']);
@@ -35,18 +35,17 @@ Route::group(['prefix' => 'store', 'middleware' => ['auth:api', 'json.response']
     Route::post('submitFloor', [pgcController::class, 'save_floor']);
     Route::post('save/signature/{submission}', [pgcController::class, 'saveSignature']);
     Route::post('change/status/{submission}', [pgcController::class, 'changeStatus']);
+    Route::post('map/{submission}', [pgcController::class, 'storeMap']);
+
 
 
 });
 Route::group(['prefix' => 'dashboard', 'middleware' => ['auth:api', 'json.response']], function () {
-    // Route::post('lookups/index', [LookupController::class, 'index']);
 
     Route::post('getSubmissions', [pgcController::class, 'getSub']);
     Route::post('showSub/{id}', [pgcController::class, 'show_sub']);
-
-
     Route::post('edit_desc', [pgcController::class, 'edit_desc']);
-    Route::post('map', [pgcController::class, 'storeMap']);
+    Route::post('submissions', [pgcController::class, 'dashboard']);
 
 });
 Route::group(['prefix' => 'dashboard', 'middleware' => ['auth:api', 'json.response']], function () {
@@ -58,11 +57,6 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth:api', 'json.respon
 });
 
 
-// Route::post('getInc/{id}', [pgcController::class, 'get_incs']);
-
-// Route::post('getSubmissions', [pgcController::class, 'getSub']);
-
-// Route::post('dataLookups', [pgcController::class, 'lookups']);
 
 
 Route::group(['prefix' => '', 'middleware' => ['json.response']], function () {

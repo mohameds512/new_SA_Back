@@ -8,6 +8,7 @@ use App\Http\Requests\Users\User\UserRequest;
 use App\Models\SubmissionLog;
 use Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -26,14 +27,14 @@ use App\Models\Includes;
 
 class pgcController extends Controller
 {
+
+
     public function lookups()
     {
 
         $includes = BuildType::select('id', 'name')->with('BuildDesc')->get();
 
-        return \response([
-            'includes_type' => $includes,
-        ]);
+        return \response(['includes_type' => $includes,]);
     }
 
     public function edit_desc(Request $request)
@@ -58,17 +59,19 @@ class pgcController extends Controller
 
     public function add(Request $request)
     {
-
-//
         $sub = Submission::find($request->submission_id);
         SubmissionLog::log($sub, SubmissionLog::IN_REVIEW);
         return response(['submission' => $sub], 201);
 
     }
 
-    public function save_floor(Request $request)
+    public function dashboard(Request $request)
     {
-        return $request;
+
+        $statistics = DB::table('submissions')->select(DB::raw('COUNT(status) as count'), 'status')->where('status', '!=', 4)
+            ->groupBy('status')->get();
+
+        return success($statistics);
     }
 
     public function get_incs(Request $request)
@@ -77,7 +80,16 @@ class pgcController extends Controller
             ->select('includes.*', 'building_types.name as type', 'building_type_contents.name as content')
             ->join('building_types', 'building_types.id', 'includes.build_id')
             ->join('building_type_contents', 'building_type_contents.id', 'includes.build_desc_id');
-        $includes = $incs->get();
+        $includes = $incs->get()->transform(function ($item) {
+
+            if ($item->image) {
+                $item->image = route('includes_image', ['submission_id' => $item->submission_id, 'img' => $item->image, 'no_cache' => Str::random(4)]);
+            }
+
+            return $item;
+
+        });
+
         return \response(['includes' => $includes]);
     }
 
@@ -93,19 +105,42 @@ class pgcController extends Controller
         $data = (object)[];
 
         $sub = Submission::where('id', $request->id)->with('includes')->first();
+
         $sub->building_details = $sub->building_details;
         $sub->contract_border_details = $sub->contract_border_details;
         $sub->restrict_border = $sub->restrict_border;
         $sub->coordinates = $sub->coordinates;
+
         $sub->includes_data = $sub->includes()
-            ->select('includes.qty', 'includes.id as inc_id', 'building_types.name as type', 'building_type_contents.name as content')
+            ->select('includes.qty', 'includes.id as inc_id', 'building_types.name as type', 'building_type_contents.name as content', 'includes.image', 'includes.submission_id')
             ->join('building_types', 'building_types.id', 'includes.build_id')
             ->join('building_type_contents', 'building_type_contents.id', 'includes.build_desc_id')
-            ->get();
+            ->get()->transform(function ($item) {
 
-        $sub->signature_eng = route('image', ['submission_id' => $request->id, 'img' => "signature-1", 'no_cache' => Str::random(4)]);
-        $sub->signature_owner = route('image', ['submission_id' => $request->id, 'img' => "signature-2", 'no_cache' => Str::random(4)]);
-        $sub->signature_poss = route('image', ['submission_id' => $request->id, 'img' => "signature-3", 'no_cache' => Str::random(4)]);
+                if ($item->image) {
+                    $item->image = route('includes_image', ['submission_id' => $item->submission_id, 'img' => $item->image, 'no_cache' => Str::random(4)]);
+                }
+
+                return $item;
+
+            });;
+
+        if ($sub->signature_eng == 1) {
+            $sub->signature_eng = route('image', ['submission_id' => $request->id, 'img' => "signature-1", 'no_cache' => Str::random(4)]);
+        }
+
+        if ($sub->signature_owner == 1) {
+            $sub->signature_owner = route('image', ['submission_id' => $request->id, 'img' => "signature-2", 'no_cache' => Str::random(4)]);
+        }
+
+        if ($sub->signature_poss == 1) {
+            $sub->signature_poss = route('image', ['submission_id' => $request->id, 'img' => "signature-3", 'no_cache' => Str::random(4)]);
+        }
+
+        if ($sub->map) {
+            $sub->map = route('image', ['submission_id' => $request->id, 'img' => $sub->map, 'no_cache' => Str::random(4)]);
+        }
+
 
         $logs_data = [];
 
@@ -129,6 +164,20 @@ class pgcController extends Controller
     public function saveSignature(Request $request, Submission $submission)
     {
 
+        if ($request->type == 1) {
+            $submission->signature_eng = 1;
+        }
+
+        if ($request->type == 2) {
+            $submission->signature_owner = 1;
+        }
+
+        if ($request->type == 3) {
+            $submission->signature_poss = 1;
+        }
+
+        $submission->save();
+
         self::addSignatureFile($request->signature, "submissions/$submission->id/signature-$request->type.png");
         return success(true);
     }
@@ -138,6 +187,20 @@ class pgcController extends Controller
 
 
         $paths = findFiles("submissions/$submission_id", "$img");
+
+        if (isset($paths[0]) && $paths[0]) {
+            return responseFile($paths[0], "$img");
+            // return response()->download($paths[0]);
+        }
+        return response(['message' => 'not found'], 404);
+
+    }
+
+    public function submissionIncludesImages(Request $request, $submission_id, $img, $no_cache)
+    {
+
+
+        $paths = findFiles("submissions/$submission_id/includes", "$img");
 
         if (isset($paths[0]) && $paths[0]) {
             return responseFile($paths[0], "$img");
@@ -165,26 +228,15 @@ class pgcController extends Controller
     }
 
 
-    function saveRequestImg($file, $name, $folder)
+    public function storeMap(Request $request, Submission $submission)
     {
-        $title = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-        $extension = $file->getClientOriginalExtension();
-        Storage::disk('local')->putFileAs($folder, $file, "$name.$extension");
-        return "$title.$extension";
-    }
-
-    public function storeMap(Request $request)
-    {
-        $id = $request->submission_id;
-        $submission = Submission::find($id);
         $map = $request->file('submission_map');
         $fileName = Str::random(7);
-        $mapName = $fileName . 'png';
-        $this->saveRequestImg($map, "$mapName", "submissions");
+        $mapName = "map_$fileName";
+        saveRequestFile($map, "$mapName", "submissions/$submission->id");
         $submission->map = $mapName;
         $submission->save();
-
-        return \response($submission);
+        return success($submission);
     }
 
     public function save_includes(Request $request, Includes $includes = null)
@@ -196,9 +248,8 @@ class pgcController extends Controller
 
         $img = $request->file('image');
         $fileName = Str::random(7);
-        $imgName = $fileName . 'png';
-        $this->saveRequestImg($img, "$imgName", "includes");
-
+        $imgName = "$fileName";
+        saveRequestFile($img, "$imgName", "submissions/$request->submission_id/includes");
         $includes->image = $imgName;
         $includes->build_id = $request->build_id;
         $includes->build_desc_id = $request->build_desc_id;
