@@ -13,7 +13,7 @@ use App\Http\Controllers\Api\pgc\pgcController;
 
 
 
-Route::get('submission/image/{submission_id}/{img}', [pgcController::class, 'submissionImages'])->name('image');
+Route::get('submission/image/{submission_id}/{img}/{no_cache}', [pgcController::class, 'submissionImages'])->name('image');
 
 
 Route::group(['prefix' => '', 'middleware' => ['auth:api', 'json.response']], function () {

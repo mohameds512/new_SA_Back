@@ -97,7 +97,9 @@ class pgcController extends Controller
             ->join('building_type_contents', 'building_type_contents.id', 'includes.build_desc_id')
             ->get();
 
-        $sub->signature_owner = route('image', ['submission_id' => 1 , 'img' => "signature-1"]);
+        $sub->signature_eng = route('image', ['submission_id' =>  $request->id , 'img' => "signature-1" , 'no_cache' => Str::random(4)]);
+        $sub->signature_owner = route('image', ['submission_id' =>  $request->id , 'img' => "signature-2" , 'no_cache' => Str::random(4)]);
+        $sub->signature_poss = route('image', ['submission_id' =>  $request->id , 'img' => "signature-3" , 'no_cache' => Str::random(4)]);
 
         $logs_data = [];
 
@@ -125,7 +127,7 @@ class pgcController extends Controller
         return success(true);
     }
 
-    public function submissionImages(Request $request, $submission_id ,  $img)
+    public function submissionImages(Request $request, $submission_id ,  $img , $no_cache)
     {
 
 
