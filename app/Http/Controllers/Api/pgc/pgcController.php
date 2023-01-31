@@ -241,7 +241,16 @@ class pgcController extends Controller
 
     public function save_includes(Request $request, Includes $includes = null)
     {
-
+        $names = explode(",",$request->floors_name);
+        $area = explode(",",$request->floors_area);
+        $length = count($names);
+        $floors = array();
+        
+        foreach ($names as $key =>$value) {
+            array_push($floors,array('floor'=>$names[$key],'area'=>$area[$key]));
+        }
+        
+        // return  $floors;
         if (!$includes) {
             $includes = new Includes();
         }
@@ -255,6 +264,7 @@ class pgcController extends Controller
         $includes->build_desc_id = $request->build_desc_id;
         $includes->qty = $request->qty;
         $includes->submission_id = $request->submission_id;
+        $includes->floors = $floors;
         $includes->save();
 
         return response(['includes' => $includes], 201);

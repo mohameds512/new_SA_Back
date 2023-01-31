@@ -8,6 +8,8 @@ class Includes extends Model
 {
     protected $guarded = [];
     protected $table = 'includes';
+    protected $casts = ['floors'=>'json'];
+    protected $costs = ['floors'=>'json'];
 
     
 }
