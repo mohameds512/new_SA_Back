@@ -17,6 +17,7 @@ use Validator;
 
 use App\Models\Users\UserAccess;
 
+use App\Models\Users\User;
 
 use App\Models\BuildType;
 use App\Models\BuildDesc;
@@ -50,7 +51,7 @@ class pgcController extends Controller
     public function get_build_desc()
     {
         $build_desc = BuildDesc::select('building_type_contents.id as desc_id', 'building_type_contents.name as desc_name',
-            'building_type_contents.unit as desc_unit', 'building_type_contents.price as desc_price',
+            'building_type_contents.unit as desc_unit', 'building_type_contents.price as desc_price','building_type_contents.notes as notes',
             'building_types.name as type_name', 'building_types.id as type_id')
             ->join('building_types', 'building_types.id', 'building_type_contents.building_type_id')
             ->get();
@@ -77,7 +78,7 @@ class pgcController extends Controller
     public function get_incs(Request $request)
     {
         $incs = Includes::where('submission_id', $request->id)
-            ->select('includes.*', 'building_types.name as type', 'building_type_contents.name as content')
+            ->select('includes.*', 'building_types.name as type', 'building_type_contents.name as content','building_type_contents.unit as unit')
             ->join('building_types', 'building_types.id', 'includes.build_id')
             ->join('building_type_contents', 'building_type_contents.id', 'includes.build_desc_id');
         $includes = $incs->get()->transform(function ($item) {
@@ -112,7 +113,8 @@ class pgcController extends Controller
         $sub->coordinates = $sub->coordinates;
 
         $sub->includes_data = $sub->includes()
-            ->select('includes.qty', 'includes.id as inc_id', 'building_types.name as type', 'building_type_contents.name as content', 'includes.image', 'includes.submission_id')
+            ->select('includes.qty', 'includes.id as inc_id', 'building_types.name as type', 'building_type_contents.name as content',
+                'includes.image', 'includes.submission_id','includes.floors','includes.notes','building_type_contents.unit as unit')
             ->join('building_types', 'building_types.id', 'includes.build_id')
             ->join('building_type_contents', 'building_type_contents.id', 'includes.build_desc_id')
             ->get()->transform(function ($item) {
@@ -241,6 +243,7 @@ class pgcController extends Controller
 
     public function save_includes(Request $request, Includes $includes = null)
     {
+
         $names = explode(",",$request->floors_name);
         $area = explode(",",$request->floors_area);
         $length = count($names);
@@ -263,6 +266,7 @@ class pgcController extends Controller
         $includes->build_id = $request->build_id;
         $includes->build_desc_id = $request->build_desc_id;
         $includes->qty = $request->qty;
+        $includes->notes = $request->notes;
         $includes->submission_id = $request->submission_id;
         $includes->floors = $floors;
         $includes->save();
@@ -304,9 +308,14 @@ class pgcController extends Controller
 
     public function save_submission(Request $request, Submission $sub)
     {
+
+        $user_id = Auth::user()->id;
+        $user_name = User::where('id',$user_id)->get('name_local');
+        
 //        $build_num = Str::random(7);
         $sub_data = $request->submission;
         $sub->fill($sub_data);
+        $sub->created_by = $user_name[0]->name_local;
         $sub->save();
 
         foreach ($request->owners as $owner) {
