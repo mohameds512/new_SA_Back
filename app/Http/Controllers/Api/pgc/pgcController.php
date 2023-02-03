@@ -51,7 +51,7 @@ class pgcController extends Controller
     public function get_build_desc()
     {
         $build_desc = BuildDesc::select('building_type_contents.id as desc_id', 'building_type_contents.name as desc_name',
-            'building_type_contents.unit as desc_unit', 'building_type_contents.price as desc_price','building_type_contents.notes as notes',
+            'building_type_contents.unit as desc_unit', 'building_type_contents.price as desc_price', 'building_type_contents.notes as notes',
             'building_types.name as type_name', 'building_types.id as type_id')
             ->join('building_types', 'building_types.id', 'building_type_contents.building_type_id')
             ->get();
@@ -61,6 +61,28 @@ class pgcController extends Controller
     public function add(Request $request)
     {
         $sub = Submission::find($request->submission_id);
+        $merged_submissions = $request->merged_submissions && strlen($request->merged_submissions) > 0 ? explode(',', $request->merged_submissions) : null;
+        $isolate_submissions = $request->isolate_submissions && strlen($request->isolate_submissions) > 0 ? explode(',', $request->isolate_submissions) : null;
+        $sub->operation_type = $request->operation_type;
+        $sub->isolate_submissions = $isolate_submissions;
+        $sub->merged_submissions = $merged_submissions;
+
+
+        $before_file = $request->file('before_file');
+        $before = Str::random(7);
+        $before_name = "before_$before";
+        saveRequestFile($before_file, "$before_name", "submissions/$sub->id");
+
+        $after_file = $request->file('after_file');
+        $after = Str::random(7);
+        $after_name = "before_$after";
+        saveRequestFile($after_file, "$after_name", "submissions/$sub->id");
+
+        $sub->before_image = $before_name;
+        $sub->after_image = $after_name;
+        $sub->save();
+        return response(['submission' => $sub], 201);
+
         SubmissionLog::log($sub, SubmissionLog::IN_REVIEW);
         return response(['submission' => $sub], 201);
 
@@ -78,7 +100,7 @@ class pgcController extends Controller
     public function get_incs(Request $request)
     {
         $incs = Includes::where('submission_id', $request->id)
-            ->select('includes.*', 'building_types.name as type', 'building_type_contents.name as content','building_type_contents.unit as unit')
+            ->select('includes.*', 'building_types.name as type', 'building_type_contents.name as content', 'building_type_contents.unit as unit')
             ->join('building_types', 'building_types.id', 'includes.build_id')
             ->join('building_type_contents', 'building_type_contents.id', 'includes.build_desc_id');
         $includes = $incs->get()->transform(function ($item) {
@@ -111,10 +133,12 @@ class pgcController extends Controller
         $sub->contract_border_details = $sub->contract_border_details;
         $sub->restrict_border = $sub->restrict_border;
         $sub->coordinates = $sub->coordinates;
+        $sub->isolate_submissions = $sub->isolate_submissions;
+        $sub->merged_submissions = $sub->merged_submissions;
 
         $sub->includes_data = $sub->includes()
             ->select('includes.qty', 'includes.id as inc_id', 'building_types.name as type', 'building_type_contents.name as content',
-                'includes.image', 'includes.submission_id','includes.floors','includes.notes','building_type_contents.unit as unit')
+                'includes.image', 'includes.submission_id', 'includes.floors', 'includes.notes', 'building_type_contents.unit as unit')
             ->join('building_types', 'building_types.id', 'includes.build_id')
             ->join('building_type_contents', 'building_type_contents.id', 'includes.build_desc_id')
             ->get()->transform(function ($item) {
@@ -126,6 +150,14 @@ class pgcController extends Controller
                 return $item;
 
             });;
+
+        if ($sub->before_image) {
+            $sub->before_image = route('image', ['submission_id' => $request->id, 'img' => $sub->before_image, 'no_cache' => Str::random(4)]);
+        }
+
+        if ($sub->after_image) {
+            $sub->after_image = route('image', ['submission_id' => $request->id, 'img' => $sub->after_image, 'no_cache' => Str::random(4)]);
+        }
 
         if ($sub->signature_eng == 1) {
             $sub->signature_eng = route('image', ['submission_id' => $request->id, 'img' => "signature-1", 'no_cache' => Str::random(4)]);
@@ -244,15 +276,15 @@ class pgcController extends Controller
     public function save_includes(Request $request, Includes $includes = null)
     {
 
-        $names = explode(",",$request->floors_name);
-        $area = explode(",",$request->floors_area);
+        $names = explode(",", $request->floors_name);
+        $area = explode(",", $request->floors_area);
         $length = count($names);
         $floors = array();
-        
-        foreach ($names as $key =>$value) {
-            array_push($floors,array('floor'=>$names[$key],'area'=>$area[$key]));
+
+        foreach ($names as $key => $value) {
+            array_push($floors, array('floor' => $names[$key], 'area' => $area[$key]));
         }
-        
+
         // return  $floors;
         if (!$includes) {
             $includes = new Includes();
@@ -310,8 +342,8 @@ class pgcController extends Controller
     {
 
         $user_id = Auth::user()->id;
-        $user_name = User::where('id',$user_id)->get('name_local');
-        
+        $user_name = User::where('id', $user_id)->get('name_local');
+
 //        $build_num = Str::random(7);
         $sub_data = $request->submission;
         $sub->fill($sub_data);

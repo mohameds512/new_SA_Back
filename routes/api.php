@@ -25,7 +25,7 @@ Route::group(['prefix' => '', 'middleware' => ['auth:api', 'json.response']], fu
 });
 
 Route::group(['prefix' => 'store', 'middleware' => ['auth:api', 'json.response']], function () {
-    Route::put('add/submission', [pgcController::class, 'add']);
+    Route::post('add/submission', [pgcController::class, 'add']);
     Route::put('save_submission/{sub}', [pgcController::class, 'save_submission']);
     Route::get('show/{submission}', [pgcController::class, 'show']);
     Route::post('save_includes', [pgcController::class, 'save_includes']);

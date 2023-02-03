@@ -9,7 +9,7 @@ class Submission extends Model
     protected $guarded = [];
     protected $table = 'submissions';
     protected $with = ['owners'];
-    protected $casts = ['building_details' => 'json', 'contract_border_details' => 'json',  'restrict_border' => 'json' , 'coordinates' => 'json'];
+    protected $casts = ['building_details' => 'json' , 'merged_submissions' => 'json' ,  'isolate_submissions' => 'json', 'contract_border_details' => 'json',  'restrict_border' => 'json' , 'coordinates' => 'json'];
 
     const IN_REVIEW = 0;
     const FEEDBACK = 1;
