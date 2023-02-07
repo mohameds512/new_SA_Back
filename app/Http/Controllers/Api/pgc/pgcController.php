@@ -68,18 +68,24 @@ class pgcController extends Controller
         $sub->merged_submissions = $merged_submissions;
 
 
-        $before_file = $request->file('before_file');
-        $before = Str::random(7);
-        $before_name = "before_$before";
-        saveRequestFile($before_file, "$before_name", "submissions/$sub->id");
+        if ($request->file('before_file')) {
+            $before_file = $request->file('before_file');
+            $before = Str::random(7);
+            $before_name = "before_$before";
+            saveRequestFile($before_file, "$before_name", "submissions/$sub->id");
+            $sub->before_image = $before_name;
+        }
 
-        $after_file = $request->file('after_file');
-        $after = Str::random(7);
-        $after_name = "before_$after";
-        saveRequestFile($after_file, "$after_name", "submissions/$sub->id");
 
-        $sub->before_image = $before_name;
-        $sub->after_image = $after_name;
+        if ($request->file('after_file')) {
+            $after_file = $request->file('after_file');
+            $after = Str::random(7);
+            $after_name = "before_$after";
+            saveRequestFile($after_file, "$after_name", "submissions/$sub->id");
+            $sub->after_image = $after_name;
+        }
+
+
         $sub->save();
         return response(['submission' => $sub], 201);
 
