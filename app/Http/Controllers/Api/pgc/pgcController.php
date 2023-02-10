@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\pgc;
 use App\Http\Controllers\Api\Controller;
 use App\Http\Requests\Users\User\UserRequest;
 
+use App\Models\Applicant;
 use App\Models\SubmissionLog;
 use Auth;
 use Illuminate\Http\Request;
@@ -177,6 +178,10 @@ class pgcController extends Controller
             $sub->signature_poss = route('image', ['submission_id' => $request->id, 'img' => "signature-3", 'no_cache' => Str::random(4)]);
         }
 
+        if ($sub->signature_vice == 1) {
+            $sub->signature_vice = route('image', ['submission_id' => $request->id, 'img' => "signature-4", 'no_cache' => Str::random(4)]);
+        }
+
         if ($sub->map) {
             $sub->map = route('image', ['submission_id' => $request->id, 'img' => $sub->map, 'no_cache' => Str::random(4)]);
         }
@@ -194,6 +199,9 @@ class pgcController extends Controller
 
         $owners = Owner::where('submission_id', $request->id);
         $data->owners = $owners->get()->toArray();
+
+        $applicants = Applicant::where('submission_id', $request->id);
+        $data->applicants = $applicants->get()->toArray();
 
         return \response([
             'data' => $data
@@ -214,6 +222,10 @@ class pgcController extends Controller
 
         if ($request->type == 3) {
             $submission->signature_poss = 1;
+        }
+
+        if ($request->type == 4) {
+            $submission->signature_vice = 1;
         }
 
         $submission->save();
@@ -364,6 +376,16 @@ class pgcController extends Controller
             $newOwner->fill($owner);
             $newOwner->submission_id = $sub->id;
             $newOwner->save();
+        }
+
+        foreach ($request->applicants as $applicant) {
+            $newApplicant = Applicant::whereSubmissionIdAndNationalId($sub->id, $applicant['national_id'])->first();
+            if (!$newApplicant) {
+                $newApplicant = new Applicant();
+            }
+            $newApplicant->fill($applicant);
+            $newApplicant->submission_id = $sub->id;
+            $newApplicant->save();
         }
 
         return response($sub);
