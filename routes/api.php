@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\pgc\pgcController;
 
 Route::get('submission/image/{submission_id}/{img}/{no_cache}', [pgcController::class, 'submissionImages'])->name('image');
 Route::get('submission/includes/image/{submission_id}/{img}/{no_cache}', [pgcController::class, 'submissionIncludesImages'])->name('includes_image');
+Route::get('dashboard/img/{img}/{no_cache}', [pgcController::class, 'dashMapImage'])->name('dashboard_map');
 
 
 Route::group(['prefix' => '', 'middleware' => ['auth:api', 'json.response']], function () {
@@ -36,7 +37,7 @@ Route::group(['prefix' => 'store', 'middleware' => ['auth:api', 'json.response']
     Route::post('save/signature/{submission}', [pgcController::class, 'saveSignature']);
     Route::post('change/status/{submission}', [pgcController::class, 'changeStatus']);
     Route::post('map/{submission}', [pgcController::class, 'storeMap']);
-
+    Route::post('updateDashMap', [pgcController::class, 'update_dash_map']);
 
 
 });

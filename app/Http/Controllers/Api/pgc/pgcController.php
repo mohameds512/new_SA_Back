@@ -22,6 +22,7 @@ use App\Models\Users\User;
 use App\Models\BuildType;
 use App\Models\BuildDesc;
 use App\Models\Submission;
+use App\Models\DashMap;
 use App\Models\Owner;
 use App\Models\Includes;
 
@@ -57,6 +58,7 @@ class pgcController extends Controller
             ->get();
         return \response(['build_desc' => $build_desc]);
     }
+    
 
     public function add(Request $request)
     {
@@ -67,21 +69,25 @@ class pgcController extends Controller
         $sub->isolate_submissions = $isolate_submissions;
         $sub->merged_submissions = $merged_submissions;
 
+        if ($request->file('before_file')) {
+            $before_file = $request->file('before_file');
+            $before = Str::random(7);
+            $before_name = "before_$before";
+            saveRequestFile($before_file, "$before_name", "submissions/$sub->id");
+            $sub->before_image = $before_name;
+        }
 
-        $before_file = $request->file('before_file');
-        $before = Str::random(7);
-        $before_name = "before_$before";
-        saveRequestFile($before_file, "$before_name", "submissions/$sub->id");
 
-        $after_file = $request->file('after_file');
-        $after = Str::random(7);
-        $after_name = "before_$after";
-        saveRequestFile($after_file, "$after_name", "submissions/$sub->id");
-
-        $sub->before_image = $before_name;
-        $sub->after_image = $after_name;
+        if ($request->file('after_file')) {
+            $after_file = $request->file('after_file');
+            $after = Str::random(7);
+            $after_name = "before_$after";
+            saveRequestFile($after_file, "$after_name", "submissions/$sub->id");
+            $sub->after_image = $after_name;
+        }
+        
         $sub->save();
-        return response(['submission' => $sub], 201);
+        
 
         SubmissionLog::log($sub, SubmissionLog::IN_REVIEW);
         return response(['submission' => $sub], 201);
@@ -90,11 +96,14 @@ class pgcController extends Controller
 
     public function dashboard(Request $request)
     {
-
+        
         $statistics = DB::table('submissions')->select(DB::raw('COUNT(status) as count'), 'status')->where('status', '!=', 4)
             ->groupBy('status')->get();
-
-        return success($statistics);
+        $map = DashMap::latest()->first();
+        $dashboard_img = route("dashboard_map",[ "img"=> $map->name , "no_cache"=>Str::random(3)]);
+        // $statistics["img"] = $dashboard_img;
+        // []
+        return success(["statistics"=>$statistics ,"img"=>$dashboard_img]);
     }
 
     public function get_incs(Request $request)
@@ -138,7 +147,8 @@ class pgcController extends Controller
 
         $sub->includes_data = $sub->includes()
             ->select('includes.qty', 'includes.id as inc_id', 'building_types.name as type', 'building_type_contents.name as content',
-                'includes.image', 'includes.submission_id', 'includes.floors', 'includes.notes', 'building_type_contents.unit as unit')
+            'includes.image', 'includes.submission_id','includes.floors','includes.notes','building_type_contents.unit as unit',
+            'building_type_contents.price as price')
             ->join('building_types', 'building_types.id', 'includes.build_id')
             ->join('building_type_contents', 'building_type_contents.id', 'includes.build_desc_id')
             ->get()->transform(function ($item) {
@@ -216,6 +226,19 @@ class pgcController extends Controller
         return success(true);
     }
 
+    public function dashMapImage(Request $request, $img, $no_cache)
+    {
+
+
+        $paths = findFiles("dashMaps", "$img");
+
+        if (isset($paths[0]) && $paths[0]) {
+            return responseFile($paths[0], "$img");
+            // return response()->download($paths[0]);
+        }
+        return response(['message' => 'not found'], 404);
+
+    }
     public function submissionImages(Request $request, $submission_id, $img, $no_cache)
     {
 
@@ -260,6 +283,19 @@ class pgcController extends Controller
             'submissions' => $subs
         ]);
     }
+
+    public function update_dash_map(Request $request){
+        
+        $map = $request->file('dash_map');
+        $fileName = Str::random(7);
+        $mapName = "map_$fileName";
+        saveRequestFile($map, "$mapName", "dashMaps");
+        $dashMap =  new DashMap();
+        $dashMap->name = $mapName;
+        $dashMap->save();
+        return success($dashMap);
+    }
+
 
 
     public function storeMap(Request $request, Submission $submission)
