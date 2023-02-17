@@ -26,6 +26,7 @@ use App\Models\Submission;
 use App\Models\DashMap;
 use App\Models\Owner;
 use App\Models\Includes;
+use function Symfony\Component\VarDumper\Dumper\esc;
 
 
 class pgcController extends Controller
@@ -40,10 +41,15 @@ class pgcController extends Controller
         return \response(['includes_type' => $includes,]);
     }
 
-    public function edit_desc(Request $request)
+    public function edit_desc(Request $request, BuildDesc $desc = null)
     {
         // return $request;
-        $desc = BuildDesc::where('id', $request->desc_id)->first();
+//        $desc = BuildDesc::where('id', $request->desc_id)->first();
+        if (!$desc) {
+            $desc = new BuildDesc();
+            $desc->building_type_id = $request->type;
+            $desc->name = $request->desc_name;
+        }
         $desc->price = $request->desc_price;
         $desc->unit = $request->desc_unit;
         $desc->save();
@@ -59,11 +65,18 @@ class pgcController extends Controller
             ->get();
         return \response(['build_desc' => $build_desc]);
     }
-    
+
 
     public function add(Request $request)
     {
-        $sub = Submission::find($request->submission_id);
+
+        if ($request->has('submission_number') && strlen($request->submission_number) > 0) {
+            $sub = new Submission();
+            $sub->building_number = $request->submission_number;
+        } else {
+            $sub = Submission::find($request->submission_id);
+        }
+
         $merged_submissions = $request->merged_submissions && strlen($request->merged_submissions) > 0 ? explode(',', $request->merged_submissions) : null;
         $isolate_submissions = $request->isolate_submissions && strlen($request->isolate_submissions) > 0 ? explode(',', $request->isolate_submissions) : null;
         $sub->operation_type = $request->operation_type;
@@ -90,7 +103,7 @@ class pgcController extends Controller
 
 
         $sub->save();
-        
+
 
         SubmissionLog::log($sub, SubmissionLog::IN_REVIEW);
         return response(['submission' => $sub], 201);
@@ -99,14 +112,14 @@ class pgcController extends Controller
 
     public function dashboard(Request $request)
     {
-        
+
         $statistics = DB::table('submissions')->select(DB::raw('COUNT(status) as count'), 'status')->where('status', '!=', 4)
             ->groupBy('status')->get();
         $map = DashMap::latest()->first();
-        $dashboard_img = route("dashboard_map",[ "img"=> $map->name , "no_cache"=>Str::random(3)]);
+        $dashboard_img = route("dashboard_map", ["img" => $map->name, "no_cache" => Str::random(3)]);
         // $statistics["img"] = $dashboard_img;
         // []
-        return success(["statistics"=>$statistics ,"img"=>$dashboard_img]);
+        return success(["statistics" => $statistics, "img" => $dashboard_img]);
     }
 
     public function get_incs(Request $request)
@@ -150,8 +163,8 @@ class pgcController extends Controller
 
         $sub->includes_data = $sub->includes()
             ->select('includes.qty', 'includes.id as inc_id', 'building_types.name as type', 'building_type_contents.name as content',
-            'includes.image', 'includes.submission_id','includes.floors','includes.notes','building_type_contents.unit as unit',
-            'building_type_contents.price as price')
+                'includes.image', 'includes.submission_id', 'includes.floors', 'includes.notes', 'building_type_contents.unit as unit',
+                'building_type_contents.price as price')
             ->join('building_types', 'building_types.id', 'includes.build_id')
             ->join('building_type_contents', 'building_type_contents.id', 'includes.build_desc_id')
             ->get()->transform(function ($item) {
@@ -253,6 +266,7 @@ class pgcController extends Controller
         return response(['message' => 'not found'], 404);
 
     }
+
     public function submissionImages(Request $request, $submission_id, $img, $no_cache)
     {
 
@@ -298,18 +312,18 @@ class pgcController extends Controller
         ]);
     }
 
-    public function update_dash_map(Request $request){
-        
+    public function update_dash_map(Request $request)
+    {
+
         $map = $request->file('dash_map');
         $fileName = Str::random(7);
         $mapName = "map_$fileName";
         saveRequestFile($map, "$mapName", "dashMaps");
-        $dashMap =  new DashMap();
+        $dashMap = new DashMap();
         $dashMap->name = $mapName;
         $dashMap->save();
         return success($dashMap);
     }
-
 
 
     public function storeMap(Request $request, Submission $submission)
@@ -322,6 +336,7 @@ class pgcController extends Controller
         $submission->save();
         return success($submission);
     }
+
     public function delete_inc(Request $request)
     {
         $id = $request[0];
@@ -329,6 +344,7 @@ class pgcController extends Controller
         $inc->delete();
         return success(true);
     }
+
     public function save_includes(Request $request, Includes $includes = null)
     {
         $names = explode(",", $request->floors_name);

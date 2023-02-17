@@ -46,7 +46,7 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth:api', 'json.respon
 
     Route::post('getSubmissions', [pgcController::class, 'getSub']);
     Route::post('showSub/{id}', [pgcController::class, 'show_sub']);
-    Route::post('edit_desc', [pgcController::class, 'edit_desc']);
+    Route::put('edit_desc/{desc?}', [pgcController::class, 'edit_desc']);
     Route::post('submissions', [pgcController::class, 'dashboard']);
 
 });

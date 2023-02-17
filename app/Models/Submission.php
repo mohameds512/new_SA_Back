@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Submission extends Model
 {
-    protected $guarded = [];
+    protected $guarded = ['id'];
     protected $table = 'submissions';
     protected $with = ['owners', 'applicants'];
     protected $casts = ['building_details' => 'json' , 'merged_submissions' => 'json' ,  'isolate_submissions' => 'json', 'contract_border_details' => 'json',  'restrict_border' => 'json' , 'coordinates' => 'json'];
