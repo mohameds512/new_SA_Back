@@ -30,6 +30,7 @@ Route::group(['prefix' => 'store', 'middleware' => ['auth:api', 'json.response']
     Route::put('save_submission/{sub}', [pgcController::class, 'save_submission']);
     Route::get('show/{submission}', [pgcController::class, 'show']);
     Route::post('save_includes', [pgcController::class, 'save_includes']);
+    Route::post('delete_inc', [pgcController::class, 'delete_inc']);
     Route::post('add_notes', [pgcController::class, 'add_notes']);
     Route::post('approve', [pgcController::class, 'approve_sub']);
     Route::post('forced_area', [pgcController::class, 'forced_area']);
