@@ -87,6 +87,8 @@ class pgcController extends Controller
         $sub->merged_submissions = $merged_submissions;
 
 
+        Submission::whereIn('building_number', $merged_submissions)->update(['status' => SubmissionLog::MARGE]);
+
         if ($request->file('before_file')) {
             $before_file = $request->file('before_file');
             $before = Str::random(7);
@@ -310,7 +312,7 @@ class pgcController extends Controller
     public function getSub()
     {
         $subs = Submission::select('submissions.*','users.name_local')->leftJoin('users','users.id','submissions.created_by')
-        ->get();
+        ->where('status', '!=', SubmissionLog::MARGE)->get();
         return \response([
             'submissions' => $subs
         ]);
