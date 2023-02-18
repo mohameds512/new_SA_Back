@@ -308,7 +308,7 @@ class pgcController extends Controller
 
     public function getSub()
     {
-        $subs = Submission::get();
+        $subs = Submission::where('status', '!=', SubmissionLog::MARGE)->get();
         return \response([
             'submissions' => $subs
         ]);
