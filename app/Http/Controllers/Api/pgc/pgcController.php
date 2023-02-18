@@ -69,14 +69,17 @@ class pgcController extends Controller
 
     public function add(Request $request)
     {
+        $user_id = Auth::user()->id;
 
         if ($request->has('submission_number') && strlen($request->submission_number) > 0) {
             $sub = new Submission();
+            
             $sub->building_number = $request->submission_number;
         } else {
+
             $sub = Submission::find($request->submission_id);
         }
-
+        $sub->created_by = $user_id;
         $merged_submissions = $request->merged_submissions && strlen($request->merged_submissions) > 0 ? explode(',', $request->merged_submissions) : null;
         $isolate_submissions = $request->isolate_submissions && strlen($request->isolate_submissions) > 0 ? explode(',', $request->isolate_submissions) : null;
         $sub->operation_type = $request->operation_type;
@@ -306,7 +309,8 @@ class pgcController extends Controller
 
     public function getSub()
     {
-        $subs = Submission::get();
+        $subs = Submission::select('submissions.*','users.name_local')->leftJoin('users','users.id','submissions.created_by')
+        ->get();
         return \response([
             'submissions' => $subs
         ]);
@@ -413,12 +417,12 @@ class pgcController extends Controller
     {
 
         $user_id = Auth::user()->id;
-        $user_name = User::where('id', $user_id)->get('name_local');
+        // $user_name = User::where('id', $user_id)->get('name_local');
 
 //        $build_num = Str::random(7);
         $sub_data = $request->submission;
         $sub->fill($sub_data);
-        $sub->created_by = $user_name[0]->name_local;
+        $sub->created_by = $user_id;
         $sub->save();
 
         foreach ($request->owners as $owner) {
