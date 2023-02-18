@@ -106,6 +106,8 @@ class pgcController extends Controller
             $sub->after_image = $after_name;
         }
 
+        $sub->status = SubmissionLog::IN_REVIEW;
+
 
         $sub->save();
 
