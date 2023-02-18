@@ -84,6 +84,8 @@ class pgcController extends Controller
         $sub->merged_submissions = $merged_submissions;
 
 
+        Submission::whereIn('building_number', $merged_submissions)->update(['status' => SubmissionLog::MARGE]);
+
         if ($request->file('before_file')) {
             $before_file = $request->file('before_file');
             $before = Str::random(7);

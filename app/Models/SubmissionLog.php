@@ -17,6 +17,8 @@ class SubmissionLog extends Model
     const FEEDBACK = 1;
     const APPROVED = 2;
     const OWNER_APPROVED = 3;
+    const HIDE = 4;
+    const MARGE = 5;
 
     const status = [
         ['status' => self::IN_REVIEW, 'name' => 'تحت المراجعة'],
