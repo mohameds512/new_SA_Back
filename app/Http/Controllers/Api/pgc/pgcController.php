@@ -73,7 +73,7 @@ class pgcController extends Controller
 
         if ($request->has('submission_number') && strlen($request->submission_number) > 0) {
             $sub = new Submission();
-            
+
             $sub->building_number = $request->submission_number;
         } else {
 
@@ -87,7 +87,9 @@ class pgcController extends Controller
         $sub->merged_submissions = $merged_submissions;
 
 
-        Submission::whereIn('building_number', $merged_submissions)->update(['status' => SubmissionLog::MARGE]);
+        if (count($merged_submissions) > 0) {
+            Submission::whereIn('building_number', $merged_submissions)->where('building_number', '!=', $sub->building_number)->update(['status' => SubmissionLog::MARGE]);
+        }
 
         if ($request->file('before_file')) {
             $before_file = $request->file('before_file');
