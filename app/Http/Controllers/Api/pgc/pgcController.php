@@ -43,8 +43,7 @@ class pgcController extends Controller
 
     public function edit_desc(Request $request, BuildDesc $desc = null)
     {
-        // return $request;
-//        $desc = BuildDesc::where('id', $request->desc_id)->first();
+        
         if (!$desc) {
             $desc = new BuildDesc();
             $desc->building_type_id = $request->type;
@@ -86,10 +85,12 @@ class pgcController extends Controller
         $sub->isolate_submissions = $isolate_submissions;
         $sub->merged_submissions = $merged_submissions;
 
-
-        if (count($merged_submissions) > 0) {
-            Submission::whereIn('building_number', $merged_submissions)->where('building_number', '!=', $sub->building_number)->update(['status' => SubmissionLog::MARGE]);
+        if ($merged_submissions != null) {
+            if (count($merged_submissions) > 0) {
+                Submission::whereIn('building_number', $merged_submissions)->where('building_number', '!=', $sub->building_number)->update(['status' => SubmissionLog::MARGE]);
+            }
         }
+        
 
         if ($request->file('before_file')) {
             $before_file = $request->file('before_file');
@@ -126,9 +127,12 @@ class pgcController extends Controller
             ->groupBy('status')->get();
         $map = DashMap::latest()->first();
         $dashboard_img = route("dashboard_map", ["img" => $map->name, "no_cache" => Str::random(3)]);
-        // $statistics["img"] = $dashboard_img;
-        // []
-        return success(["statistics" => $statistics, "img" => $dashboard_img]);
+        $subs = Submission::get();
+        return success([
+            "statistics" => $statistics,
+            "img" => $dashboard_img,
+            "submissions" => $subs,
+            ]);
     }
 
     public function get_incs(Request $request)
@@ -430,7 +434,12 @@ class pgcController extends Controller
         $sub->fill($sub_data);
         $sub->created_by = $user_id;
         $sub->save();
-
+        $s_owner = Owner::where('submission_id', $sub->id)->get();
+        if (!empty($s_owner)) {
+            foreach ($s_owner as $item) {
+                $item->delete();
+            }
+        }
         foreach ($request->owners as $owner) {
             $newOwner = Owner::whereSubmissionIdAndNationalId($sub->id, $owner['national_id'])->first();
             if (!$newOwner) {
@@ -440,7 +449,12 @@ class pgcController extends Controller
             $newOwner->submission_id = $sub->id;
             $newOwner->save();
         }
-
+        $s_App = Applicant::where('submission_id', $sub->id)->get();
+        if (!empty($s_App)) {
+            foreach ($s_App as $item) {
+                $item->delete();
+            }
+        }
         foreach ($request->applicants as $applicant) {
             $newApplicant = Applicant::whereSubmissionIdAndNationalId($sub->id, $applicant['national_id'])->first();
             if (!$newApplicant) {
