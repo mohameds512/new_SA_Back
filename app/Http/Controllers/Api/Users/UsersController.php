@@ -141,29 +141,16 @@ class UsersController extends Controller
     {
 
         $user = ($user) ? $user : auth()->user();
-        $user->refresh();
-
-        if ($user->id != auth()->id() && !can('edit_users'))
-            return error(System::HTTP_UNAUTHORIZED);
 
         $validations = [];
 
-        $validations['password'] = $this->passwordValidation;
+        $validations['password'] =  "required";
         $validations['confirm_password'] = "required|same:password";
 
-        if (!can('edit_users')) {
-
-            $validations['old_password'] = "required";
-        }
-
         $validator = Validator::make($request->all(), $validations);
+
         if ($validator->fails()) {
             return vrrors($validator);
-        }
-
-        if (!can('edit_users') && !Hash::check($request->old_password, $user->password)) {
-
-            return error(System::ERROR_WRONG_OLD_PASSWORD);
         }
 
         $user->password = bcrypt($request->password);

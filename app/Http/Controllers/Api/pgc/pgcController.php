@@ -90,6 +90,16 @@ class pgcController extends Controller
                 Submission::whereIn('building_number', $merged_submissions)->where('building_number', '!=', $sub->building_number)->update(['status' => SubmissionLog::MARGE]);
             }
         }
+
+        if($isolate_submissions !=null && count($isolate_submissions) > 0){
+
+            foreach ($isolate_submissions as $submission){
+                $sub = new Submission();
+                $sub->building_number = $submission;
+                $sub->status = SubmissionLog::IN_REVIEW;
+                $sub->save();
+            }
+        }
         
 
         if ($request->file('before_file')) {
