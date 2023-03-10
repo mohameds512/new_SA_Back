@@ -94,10 +94,10 @@ class pgcController extends Controller
         if($isolate_submissions !=null && count($isolate_submissions) > 0){
 
             foreach ($isolate_submissions as $submission){
-                $sub = new Submission();
-                $sub->building_number = $submission;
-                $sub->status = SubmissionLog::IN_REVIEW;
-                $sub->save();
+                $new = new Submission();
+                $new->building_number = $submission;
+                $new->status = SubmissionLog::IN_REVIEW;
+                $new->save();
             }
         }
         
