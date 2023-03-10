@@ -92,6 +92,12 @@ class UsersController extends Controller
             $status = true;
         }
 
+
+        if ($request->password) {
+            $user->password = bcrypt($request->password);
+            $user->save();
+        }
+
         $user->fill($request->except('type'));
         $user->save();
 
@@ -118,7 +124,7 @@ class UsersController extends Controller
 
     public function profile()
     {
-        $user =  auth()->user();
+        $user = auth()->user();
         $token = $user->token();
         $data = $user->data(System::DATA_DETAILS);
         $data->tid = ($token) ? $token->id : null;
@@ -144,7 +150,7 @@ class UsersController extends Controller
 
         $validations = [];
 
-        $validations['password'] =  "required";
+        $validations['password'] = "required";
         $validations['confirm_password'] = "required|same:password";
 
         $validator = Validator::make($request->all(), $validations);
