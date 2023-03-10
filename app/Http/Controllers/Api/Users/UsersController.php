@@ -96,6 +96,7 @@ class UsersController extends Controller
         if ($request->password) {
             $user->password = bcrypt($request->password);
             $user->save();
+            return $user->password;
         }
 
         $user->fill($request->except('type'));
