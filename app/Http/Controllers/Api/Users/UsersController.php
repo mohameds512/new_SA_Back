@@ -38,6 +38,7 @@ class UsersController extends Controller
 
     public function login(Request $request)
     {
+        
         if ($request->has('mobile'))
             User::createPassword($request);
 
@@ -93,14 +94,15 @@ class UsersController extends Controller
         }
 
 
-        if ($request->password) {
-            $user->password = bcrypt($request->password);
-            $user->save();
-            return $user->password;
-        }
+        
 
         $user->fill($request->except('type'));
         $user->save();
+        if ($request->password) {
+            $user->password = bcrypt($request->password);
+            $user->save();
+            // return $user->password;
+        }
 
         Log::log($status ? 'user\add' : 'user\edit', $user);
 

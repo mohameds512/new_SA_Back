@@ -10,6 +10,7 @@ use \App\Http\Controllers\Api\System\DashboardController;
 use App\Http\Controllers\Api\System\LookupController;
 
 use App\Http\Controllers\Api\pgc\pgcController;
+use App\Http\Controllers\Api\pgc\taskController;
 
 
 
@@ -17,19 +18,24 @@ Route::get('submission/image/{submission_id}/{img}/{no_cache}', [pgcController::
 Route::get('submission/includes/image/{submission_id}/{img}/{no_cache}', [pgcController::class, 'submissionIncludesImages'])->name('includes_image');
 Route::get('dashboard/img/{img}/{no_cache}', [pgcController::class, 'dashMapImage'])->name('dashboard_map');
 
+Route::post('exportInclude',[pgcController::class, 'exportInclude']);
+Route::post('exportSub',[pgcController::class, 'exportSub']);
 
 Route::group(['prefix' => '', 'middleware' => ['auth:api', 'json.response']], function () {
 
     Route::post('dataLookups', [pgcController::class, 'lookups']);
 
     Route::post('build_desc', [pgcController::class, 'get_build_desc']);
+
+    Route::post('taskLookUps', [taskController::class, 'lookUps']);
+    Route::put('saveTask', [taskController::class, 'save_task']);
 });
 
 Route::group(['prefix' => 'store', 'middleware' => ['auth:api', 'json.response']], function () {
     Route::post('add/submission', [pgcController::class, 'add']);
     Route::put('save_submission/{sub}', [pgcController::class, 'save_submission']);
     Route::get('show/{submission}', [pgcController::class, 'show']);
-    Route::post('save_includes', [pgcController::class, 'save_includes']);
+    Route::post('save_includes/{includes?}', [pgcController::class, 'save_includes']);
     Route::post('delete_inc', [pgcController::class, 'delete_inc']);
     Route::post('add_notes', [pgcController::class, 'add_notes']);
     Route::post('approve', [pgcController::class, 'approve_sub']);
@@ -38,9 +44,12 @@ Route::group(['prefix' => 'store', 'middleware' => ['auth:api', 'json.response']
     Route::post('save/signature/{submission}', [pgcController::class, 'saveSignature']);
     Route::post('change/status/{submission}', [pgcController::class, 'changeStatus']);
     Route::post('map/{submission}', [pgcController::class, 'storeMap']);
+    Route::post('updateBeforeAfter/{submission}', [pgcController::class, 'updateBeforeAfter']);
+    Route::post('reviewedData/{submission}', [pgcController::class, 'reviewedData']);
+
     Route::post('updateDashMap', [pgcController::class, 'update_dash_map']);
 
-
+    Route::post('deleteSubmission',[pgcController::class, 'deleteSubmission']);
 });
 Route::group(['prefix' => 'dashboard', 'middleware' => ['auth:api', 'json.response']], function () {
 
@@ -50,6 +59,9 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth:api', 'json.respon
     Route::post('submissions', [pgcController::class, 'dashboard']);
 
 });
+
+
+
 Route::group(['prefix' => 'dashboard', 'middleware' => ['auth:api', 'json.response']], function () {
 
     Route::post('getInc/{id}', [pgcController::class, 'get_incs']);
@@ -65,9 +77,6 @@ Route::group(['prefix' => '', 'middleware' => ['json.response']], function () {
     Route::post('login', [UsersController::class, 'login']);
     Route::get('{user}', [UsersController::class, 'get']);
     Route::get('photo/{user}', [UsersController::class, 'photo']);
-
-
-
 
 });
 

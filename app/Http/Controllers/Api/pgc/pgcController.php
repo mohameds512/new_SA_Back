@@ -19,20 +19,37 @@ use Validator;
 use App\Models\Users\UserAccess;
 
 use App\Models\Users\User;
-
+use App\Models\System\Log;
 use App\Models\BuildType;
 use App\Models\BuildDesc;
 use App\Models\Submission;
 use App\Models\DashMap;
 use App\Models\Owner;
 use App\Models\Includes;
+
+
+
+use App\Exports\exportIncludes;
+use App\Exports\SubExport;
+
+
+
+
 use function Symfony\Component\VarDumper\Dumper\esc;
 
 
 class pgcController extends Controller
 {
 
+    public function exportInclude(Request $request)
+    {
+        return \Excel::download(new exportIncludes($request->sub_id), 'includes.xlsx');
+    }
 
+    public function exportSub(Request $request)
+    {
+        return \Excel::download(new SubExport($request->sub_id), 'sub.xlsx');
+    }
     public function lookups()
     {
 
@@ -185,7 +202,7 @@ class pgcController extends Controller
         $sub->merged_submissions = $sub->merged_submissions;
 
         $sub->includes_data = $sub->includes()
-            ->select('includes.qty', 'includes.id as inc_id', 'building_types.name as type', 'building_type_contents.name as content',
+            ->select('includes.qty', 'includes.id as inc_id', 'building_types.name as type', 'building_types.id as type_id', 'building_type_contents.name as content',
                 'includes.image', 'includes.submission_id', 'includes.floors', 'includes.notes', 'building_type_contents.unit as unit',
                 'building_type_contents.price as price')
             ->join('building_types', 'building_types.id', 'includes.build_id')
@@ -349,6 +366,43 @@ class pgcController extends Controller
         return success($dashMap);
     }
 
+    public function reviewedData(Request $request, Submission $submission){
+        
+        if ($request->has('contract_review')) {
+            $submission->contract_review = $request->contract_review;
+        }
+        if ($request->has('buildingArea_review')) {
+            $submission->buildingArea_review = $request->buildingArea_review;
+        }
+        if ($request->has('realityArea_review')) {
+            $submission->realityArea_review = $request->realityArea_review;
+        }
+        if ($request->has('coors_review')) {
+            $submission->coors_review = $request->coors_review;
+        }
+        $submission->save();
+        return success(true);
+    }
+    public function updateBeforeAfter(Request $request, Submission $submission)
+    {
+        if ($request->hasFile('before_image')) {
+            $img = $request->file('before_image');
+            $fileName = Str::random(7);
+            $beforeImg = "uBefore_$fileName";
+            saveRequestFile($img, "$beforeImg", "submissions/$submission->id");
+            $submission->before_image = $beforeImg;
+        } 
+        if ($request->hasFile('after_image')) {
+            $img = $request->file('after_image');
+            $fileName = Str::random(7);
+            $afterImg = "uAfter_$fileName";
+            saveRequestFile($img, "$afterImg", "submissions/$submission->id");
+            $submission->after_image = $afterImg;
+        }
+        
+        $submission->save();
+        return success($submission);
+    }
 
     public function storeMap(Request $request, Submission $submission)
     {
@@ -371,6 +425,7 @@ class pgcController extends Controller
 
     public function save_includes(Request $request, Includes $includes = null)
     {
+        
         $names = explode(",", $request->floors_name);
         $area = explode(",", $request->floors_area);
         $length = count($names);
@@ -384,12 +439,14 @@ class pgcController extends Controller
         if (!$includes) {
             $includes = new Includes();
         }
-
-        $img = $request->file('image');
-        $fileName = Str::random(7);
-        $imgName = "$fileName";
-        saveRequestFile($img, "$imgName", "submissions/$request->submission_id/includes");
-        $includes->image = $imgName;
+        if ($request->hasFile('image')) {
+            $img = $request->file('image'); 
+            $fileName = Str::random(7);
+            $imgName = "$fileName";
+            saveRequestFile($img, "$imgName", "submissions/$request->submission_id/includes");
+            $includes->image = $imgName;
+        }
+        
         $includes->build_id = $request->build_id;
         $includes->build_desc_id = $request->build_desc_id;
         $includes->qty = $request->qty;
@@ -483,5 +540,21 @@ class pgcController extends Controller
         return SubmissionLog::log($submission, $request->status, $request->note);
     }
 
+    public function deleteSubmission(Request $request)
+    {
+        $id = $request[0];
+        $sub = Submission::find($id);
+        $subLogs = SubmissionLog::where('submission_id',$id)->get();
+        foreach ($subLogs as $subLog) {
+            $subLog->delete();
+        }
+        // $incs = Includes::where('submission_id',$id)->get();
+        // $owners = Owner::where('submission_id',$id)->get();
+
+        $sub->delete();
+        Log::log('submission\Delete', $sub);
+
+        return success(true);
+    }
 
 }
